@@ -48,3 +48,13 @@ footer { background: #6b4a5c; color: white; text-align: center; padding: 20px; m
 .remove-btn { color: #c74a4a; text-decoration: none; font-size: 0.9rem; }
 .remove-btn:hover { text-decoration: underline; }
 .cart-table input[type="number"] { width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 5px; text-align: center; }
+
+/* Week 4 additions */
+.stock { color: #666; font-size: 0.85rem; margin-bottom: 10px; }
+.empty-cart-message { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; grid-column: 1 / -1; }
+.empty-cart-message p { margin: 10px 0; color: #666; }
+.update-btn { background: #8b5a7c; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; margin-right: 20px; }
+.update-btn:hover { background: #6b4a5c; }
+.remove-btn { color: #c74a4a; text-decoration: none; font-size: 0.9rem; }
+.remove-btn:hover { text-decoration: underline; }
+.cart-table input[type="number"] { width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 5px; text-align: center; }

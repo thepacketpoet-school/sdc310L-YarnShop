@@ -1,16 +1,16 @@
 <?php
 /*
-    Haley's Hobby Yarn & Thread - Catalog Page
-    SDC310L Course Project
+    Haley's Hobby Yarn & Thread - Catalog View
+    SDC310L Course Project - Week 4
     Author: Haley Archer
-    Date: January 2026
+    Date: January 18, 2026
+    Description: Main catalog page using MVC architecture
 */
 session_start();
-require_once 'includes/db_connect.php';
+require_once(__DIR__ . '/controller/catalog_controller.php');
 
-// Fetch all products from database
-$stmt = $pdo->query("SELECT * FROM products ORDER BY product_id");
-$products = $stmt->fetchAll();
+$products = get_products_for_catalog();
+$cart_count = get_cart_count();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +27,7 @@ $products = $stmt->fetchAll();
             <p class="tagline">Quality yarns for every project</p>
             <nav>
                 <a href="index.php" class="active">Catalog</a>
-                <a href="cart.php">Shopping Cart (<?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?>)</a>
+                <a href="cart.php">Shopping Cart (<?php echo $cart_count; ?>)</a>
             </nav>
         </div>
     </header>

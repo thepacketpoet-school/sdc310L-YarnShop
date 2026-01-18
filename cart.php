@@ -1,28 +1,20 @@
 <?php
 /*
-    Haley's Hobby Yarn & Thread - Shopping Cart
-    SDC310L Course Project
+    Haley's Hobby Yarn & Thread - Shopping Cart View
+    SDC310L Course Project - Week 4
     Author: Haley Archer
-    Date: January 2026
+    Date: January 18, 2026
+    Description: Shopping cart page using MVC architecture
 */
 session_start();
-require_once 'includes/db_connect.php';
-
-// Initialize cart if not exists
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
-}
+require_once(__DIR__ . '/controller/cart_controller.php');
+require_once(__DIR__ . '/controller/catalog_controller.php');
 
 // Handle add to cart
 if (isset($_POST['add_to_cart'])) {
     $product_id = (int)$_POST['product_id'];
     $quantity = (int)$_POST['quantity'];
-    
-    if (isset($_SESSION['cart'][$product_id])) {
-        $_SESSION['cart'][$product_id] += $quantity;
-    } else {
-        $_SESSION['cart'][$product_id] = $quantity;
-    }
+    add_to_cart($product_id, $quantity);
     header("Location: cart.php");
     exit;
 }
@@ -30,44 +22,20 @@ if (isset($_POST['add_to_cart'])) {
 // Handle remove from cart
 if (isset($_GET['remove'])) {
     $product_id = (int)$_GET['remove'];
-    unset($_SESSION['cart'][$product_id]);
+    remove_from_cart($product_id);
     header("Location: cart.php");
     exit;
 }
 
-// Handle update quantity
+// Handle update cart
 if (isset($_POST['update_cart'])) {
-    foreach ($_POST['quantities'] as $product_id => $quantity) {
-        $quantity = (int)$quantity;
-        if ($quantity > 0) {
-            $_SESSION['cart'][(int)$product_id] = $quantity;
-        } else {
-            unset($_SESSION['cart'][(int)$product_id]);
-        }
-    }
+    update_cart($_POST['quantities']);
     header("Location: cart.php");
     exit;
 }
 
-// Fetch cart items from database
-$cart_items = [];
-$subtotal = 0;
-
-if (!empty($_SESSION['cart'])) {
-    $ids = implode(',', array_keys($_SESSION['cart']));
-    $stmt = $pdo->query("SELECT * FROM products WHERE product_id IN ($ids)");
-    $cart_items = $stmt->fetchAll();
-    
-    foreach ($cart_items as &$item) {
-        $item['cart_quantity'] = $_SESSION['cart'][$item['product_id']];
-        $item['line_total'] = $item['price'] * $item['cart_quantity'];
-        $subtotal += $item['line_total'];
-    }
-}
-
-$tax_rate = 0.0825;
-$tax = $subtotal * $tax_rate;
-$total = $subtotal + $tax;
+$cart_data = get_cart_data();
+$cart_count = get_cart_count();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,14 +52,14 @@ $total = $subtotal + $tax;
             <p class="tagline">Quality yarns for every project</p>
             <nav>
                 <a href="index.php">Catalog</a>
-                <a href="cart.php" class="active">Shopping Cart (<?php echo count($_SESSION['cart']); ?>)</a>
+                <a href="cart.php" class="active">Shopping Cart (<?php echo $cart_count; ?>)</a>
             </nav>
         </div>
     </header>
     <main>
         <h2>Your Shopping Cart</h2>
         <div class="cart-container">
-            <?php if (empty($cart_items)): ?>
+            <?php if (empty($cart_data['items'])): ?>
                 <div class="empty-cart-message">
                     <p>Your cart is empty.</p>
                     <p><a href="index.php" class="continue-shopping">Continue shopping</a></p>
@@ -109,7 +77,7 @@ $total = $subtotal + $tax;
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($cart_items as $item): ?>
+                            <?php foreach ($cart_data['items'] as $item): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($item['product_name']); ?></td>
                                 <td>$<?php echo number_format($item['price'], 2); ?></td>
@@ -130,9 +98,9 @@ $total = $subtotal + $tax;
                 </form>
                 <div class="cart-summary">
                     <h3>Order Summary</h3>
-                    <div class="summary-row"><span>Subtotal:</span><span>$<?php echo number_format($subtotal, 2); ?></span></div>
-                    <div class="summary-row"><span>Tax (8.25%):</span><span>$<?php echo number_format($tax, 2); ?></span></div>
-                    <div class="summary-row total"><span>Total:</span><span>$<?php echo number_format($total, 2); ?></span></div>
+                    <div class="summary-row"><span>Subtotal:</span><span>$<?php echo number_format($cart_data['subtotal'], 2); ?></span></div>
+                    <div class="summary-row"><span>Tax (8.25%):</span><span>$<?php echo number_format($cart_data['tax'], 2); ?></span></div>
+                    <div class="summary-row total"><span>Total:</span><span>$<?php echo number_format($cart_data['total'], 2); ?></span></div>
                     <button class="checkout-btn">Proceed to Checkout</button>
                 </div>
             <?php endif; ?>
